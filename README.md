@@ -8,3 +8,6 @@
 
 ### Đánh giá sức mạnh VPS/Server và Share kêt quả
 > wget -qO- vnbenchmark.com/bash-share | bash
+
+## Screenshot
+![Screenshot VNBenchmark](https://raw.githubusercontent.com/thientran235/vnbenchmark.sh/main/Screenshot_2.png)
