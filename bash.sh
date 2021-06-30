@@ -179,11 +179,10 @@ speed_test() {
     local ipaddress=$(ping -c1 -n `awk -F'/' '{print $3}' <<< $1` | awk -F'[()]' '{print $2;exit}')
     local nodeName=$2
     local latency=$(ping $ipaddress -c 3 | grep avg | awk -F / '{print $5}')" ms"
-    printf "${YELLOW}%-26s${GREEN}%-18s${RED}%-20s${SKYBLUE}%-12s${PLAIN}\n" "${nodeName}" "${ipaddress}" "${speedtest}" "${latency}"
+    printf "${YELLOW}%-26s${PLAIN}${GREEN}%-18s${PLAIN}${RED}%-20s${PLAIN}${SKYBLUE}%-12s${PLAIN}\n" "${nodeName}" "${ipaddress}" "${speedtest}" "${latency}"
 }
 
 speed() {
-    rm -rf /tmp/speed.txt && touch /tmp/speed.txt
     speed_test 'http://cachefly.cachefly.net/100mb.test' 'CacheFly'
     speed_test 'https://lax-ca-us-ping.vultr.com/vultr.com.100MB.bin' 'Vultr - Los Angeles'
     speed_test 'https://wa-us-ping.vultr.com/vultr.com.100MB.bin' 'Vultr - Seattle'
@@ -203,7 +202,6 @@ speed() {
 }
 
 fio_test() {
-    rm -rf /tmp/fio.txt && touch /tmp/fio.txt
     if [ -e '/usr/bin/fio' ]; then
         local tmp=$(mktemp)
         fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=fio_test --filename=fio_test --bs=4k --numjobs=1 --iodepth=64 --size=256M --readwrite=randrw --rwmixread=75 --runtime=30 --time_based --output="$tmp"
