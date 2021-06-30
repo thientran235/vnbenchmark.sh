@@ -5,7 +5,7 @@
 
 ### Đánh giá sức mạnh VPS/Server
 ```
-get -qO- vnbenchmark.com/bash.sh | bash
+wget -qO- vnbenchmark.com/bash.sh | bash
 ```
 
 ### Đánh giá sức mạnh VPS/Server và Share kết quả
