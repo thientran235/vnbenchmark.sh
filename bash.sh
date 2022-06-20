@@ -179,7 +179,7 @@ speed_test() {
     local ipaddress=$(ping -c1 -n `awk -F'/' '{print $3}' <<< $1` | awk -F'[()]' '{print $2;exit}')
     local nodeName=$2
     local latency=$(ping $ipaddress -c 3 | grep avg | awk -F / '{print $5}')" ms"
-    printf "${YELLOW}%-26s${PLAIN}${GREEN}%-18s${PLAIN}${RED}%-20s${PLAIN}${SKYBLUE}%-12s${PLAIN}\n" "${nodeName}" "${ipaddress}" "${speedtest}" "${latency}"
+    printf "${YELLOW}%-30s${PLAIN}${GREEN}%-36s${PLAIN}${RED}%-20s${PLAIN}${SKYBLUE}%-12s${PLAIN}\n" "${nodeName}" "${ipaddress}" "${speedtest}" "${latency}"
 }
 
 speed() {
@@ -270,31 +270,35 @@ cpu_test() {
 ram_test() {
     if [ -e '/usr/bin/sysbench' ]; then
 
-        printf "%-20s %-15s %-18s %-15s\n" "Ram Test Name" "Total Time" "Transfer Rate" "Operations Rate"
+        printf "%-20s %-15s %-18s %-22s %-15s\n" "Ram Test Name" "Total Time" "Transfer Rate" "Operations Rate" "Latency"
 
         sysbench --threads=4 --time=30 --memory-block-size=1K --memory-scope=global --memory-total-size=200G --memory-oper=read memory run | cat > /tmp/sysbench-ram1.txt
         local total_time1=$( cat /tmp/sysbench-ram1.txt | egrep "total time:" | cut -d: -f2 | xargs )
         local transfer1=$( cat /tmp/sysbench-ram1.txt | egrep "transferred \(" | cut -d"(" -f2 | cut -d" " -f1 )
         local operation1=$( cat /tmp/sysbench-ram1.txt | egrep "* per second" | cut -d: -f2 | xargs | cut -d"(" -f2- | cut -d" " -f1 )
-        printf "${YELLOW}%-20s${PLAIN} ${SKYBLUE}%-15s${PLAIN} ${RED}%-18s${PLAIN} ${GREEN}%-15s${PLAIN}\n" "Read" "$total_time1" "$transfer1 MB/s" "$operation1 ops/s"
+        local latency1=$( cat /tmp/sysbench-ram1.txt | egrep "avg:" | cut -d: -f2 | xargs )
+        printf "${YELLOW}%-20s${PLAIN} ${SKYBLUE}%-15s${PLAIN} ${RED}%-18s${PLAIN} ${GREEN}%-22s${PLAIN} ${SKYBLUE}%-15s${PLAIN}\n" "Read" "$total_time1" "$transfer1 MB/s" "$operation1 ops/s" "$latency1 ms"
 
         sysbench --threads=4 --time=30 --memory-block-size=1M --memory-scope=global --memory-total-size=1000G --memory-oper=read memory run | cat > /tmp/sysbench-ram2.txt
         local total_time2=$( cat /tmp/sysbench-ram2.txt | egrep "total time:" | cut -d: -f2 | xargs )
         local transfer2=$( cat /tmp/sysbench-ram2.txt | egrep "transferred \(" | cut -d"(" -f2 | cut -d" " -f1 )
         local operation2=$( cat /tmp/sysbench-ram2.txt | egrep "* per second" | cut -d: -f2 | xargs | cut -d"(" -f2- | cut -d" " -f1 )
-        printf "${YELLOW}%-20s${PLAIN} ${SKYBLUE}%-15s${PLAIN} ${RED}%-18s${PLAIN} ${GREEN}%-15s${PLAIN}\n" "Read 1M" "$total_time2" "$transfer2 MB/s" "$operation2 ops/s"
+        local latency2=$( cat /tmp/sysbench-ram2.txt | egrep "avg:" | cut -d: -f2 | xargs )
+        printf "${YELLOW}%-20s${PLAIN} ${SKYBLUE}%-15s${PLAIN} ${RED}%-18s${PLAIN} ${GREEN}%-22s${PLAIN} ${SKYBLUE}%-15s${PLAIN}\n" "Read 1M" "$total_time2" "$transfer2 MB/s" "$operation2 ops/s" "$latency2 ms"
 
         sysbench --threads=4 --time=30 --memory-block-size=1K --memory-scope=global --memory-total-size=100G --memory-oper=write memory run | cat > /tmp/sysbench-ram3.txt
         local total_time3=$( cat /tmp/sysbench-ram3.txt | egrep "total time:" | cut -d: -f2 | xargs )
         local transfer3=$( cat /tmp/sysbench-ram3.txt | egrep "transferred \(" | cut -d"(" -f2 | cut -d" " -f1 )
         local operation3=$( cat /tmp/sysbench-ram3.txt | egrep "* per second" | cut -d: -f2 | xargs | cut -d"(" -f2- | cut -d" " -f1 )
-        printf "${YELLOW}%-20s${PLAIN} ${SKYBLUE}%-15s${PLAIN} ${RED}%-18s${PLAIN} ${GREEN}%-15s${PLAIN}\n" "Write" "$total_time3" "$transfer3 MB/s" "$operation3 ops/s"
+        local latency3=$( cat /tmp/sysbench-ram3.txt | egrep "avg:" | cut -d: -f2 | xargs )
+        printf "${YELLOW}%-20s${PLAIN} ${SKYBLUE}%-15s${PLAIN} ${RED}%-18s${PLAIN} ${GREEN}%-22s${PLAIN} ${SKYBLUE}%-15s${PLAIN}\n" "Write" "$total_time3" "$transfer3 MB/s" "$operation3 ops/s" "$latency3 ms"
 
         sysbench --threads=4 --time=30 --memory-block-size=1M --memory-scope=global --memory-total-size=400G --memory-oper=write memory run | cat > /tmp/sysbench-ram4.txt
         local total_time4=$( cat /tmp/sysbench-ram4.txt | egrep "total time:" | cut -d: -f2 | xargs )
         local transfer4=$( cat /tmp/sysbench-ram4.txt | egrep "transferred \(" | cut -d"(" -f2 | cut -d" " -f1 )
         local operation4=$( cat /tmp/sysbench-ram4.txt | egrep "* per second" | cut -d: -f2 | xargs | cut -d"(" -f2- | cut -d" " -f1 )
-        printf "${YELLOW}%-20s${PLAIN} ${SKYBLUE}%-15s${PLAIN} ${RED}%-18s${PLAIN} ${GREEN}%-15s${PLAIN}\n" "Write 1M" "$total_time4" "$transfer4 MB/s" "$operation4 ops/s"
+        local latency4=$( cat /tmp/sysbench-ram3.txt | egrep "avg:" | cut -d: -f2 | xargs )
+        printf "${YELLOW}%-20s${PLAIN} ${SKYBLUE}%-15s${PLAIN} ${RED}%-18s${PLAIN} ${GREEN}%-22s${PLAIN} ${SKYBLUE}%-15s${PLAIN}\n" "Write 1M" "$total_time4" "$transfer4 MB/s" "$operation4 ops/s" "$latency4 ms"
 
 
     else
@@ -342,6 +346,100 @@ calc_disk() {
     echo ${total_size}
 }
 
+launch_geekbench() {
+	VERSION=$1
+
+	# create a temp directory to house all geekbench files
+	GEEKBENCH_PATH=/tmp/geekbench_$VERSION
+	mkdir -p $GEEKBENCH_PATH
+
+	# check for curl vs wget
+	[[ ! -z $LOCAL_CURL ]] && DL_CMD="curl -s" || DL_CMD="wget -qO-"
+
+	if [[ $VERSION == *4* && ($ARCH = *aarch64* || $ARCH = *arm*) ]]; then
+		echo -e "\nARM architecture not supported by Geekbench 4, use Geekbench 5."
+	elif [[ $VERSION == *4* && $ARCH != *aarch64* && $ARCH != *arm* ]]; then # Geekbench v4
+		echo -n "\nRunning Geekbench 4 benchmark test..."
+		# download the latest Geekbench 4 tarball and extract to geekbench temp directory
+		$DL_CMD https://cdn.geekbench.com/Geekbench-4.4.4-Linux.tar.gz  | tar xz --strip-components=1 -C $GEEKBENCH_PATH &>/dev/null
+
+		if [[ "$ARCH" == *"x86"* ]]; then
+			# check if geekbench file exists
+			if test -f "geekbench.license"; then
+				$GEEKBENCH_PATH/geekbench_x86_32 --unlock `cat geekbench.license` > /dev/null 2>&1
+			fi
+
+			# run the Geekbench 4 test and grep the test results URL given at the end of the test
+			GEEKBENCH_TEST=$($GEEKBENCH_PATH/geekbench_x86_32 --upload 2>/dev/null | grep "https://browser")
+		else
+			# check if geekbench file exists
+			if test -f "geekbench.license"; then
+				$GEEKBENCH_PATH/geekbench4 --unlock `cat geekbench.license` > /dev/null 2>&1
+			fi
+			
+			# run the Geekbench 4 test and grep the test results URL given at the end of the test
+			GEEKBENCH_TEST=$($GEEKBENCH_PATH/geekbench4 --upload 2>/dev/null | grep "https://browser")
+		fi
+	fi
+
+	if [[ $VERSION == *5* ]]; then # Geekbench v5
+		if [[ $ARCH = *x86* && $GEEKBENCH_4 == *False* ]]; then # don't run Geekbench 5 if on 32-bit arch
+			echo -e "\nGeekbench 5 cannot run on 32-bit architectures. Re-run with -4 flag to use"
+			echo -e "Geekbench 4, which can support 32-bit architectures. Skipping Geekbench 5."
+		elif [[ $ARCH = *x86* && $GEEKBENCH_4 == *True* ]]; then
+			echo -e "\nGeekbench 5 cannot run on 32-bit architectures. Skipping test."
+		else
+			echo -n "\nRunning Geekbench 5 benchmark test..."
+			# download the latest Geekbench 5 tarball and extract to geekbench temp directory
+			if [[ $ARCH = *aarch64* || $ARCH = *arm* ]]; then
+				$DL_CMD https://cdn.geekbench.com/Geekbench-5.4.4-LinuxARMPreview.tar.gz  | tar xz --strip-components=1 -C $GEEKBENCH_PATH &>/dev/null
+			else
+				$DL_CMD https://cdn.geekbench.com/Geekbench-5.4.4-Linux.tar.gz | tar xz --strip-components=1 -C $GEEKBENCH_PATH &>/dev/null
+			fi
+
+			# check if geekbench file exists
+			if test -f "geekbench.license"; then
+				$GEEKBENCH_PATH/geekbench5 --unlock `cat geekbench.license` > /dev/null 2>&1
+			fi
+
+			GEEKBENCH_TEST=$($GEEKBENCH_PATH/geekbench5 --upload 2>/dev/null | grep "https://browser")
+		fi
+	fi
+
+	# ensure the test ran successfully
+	if [ -z "$GEEKBENCH_TEST" ]; then
+		if [[ -z "$IPV4_CHECK" ]]; then
+			# Geekbench test failed to download because host lacks IPv4 (cdn.geekbench.com = IPv4 only)
+			echo -e "\r\033[0KGeekbench releases can only be downloaded over IPv4. FTP the Geekbench files and run manually."
+		elif [[ $ARCH != *x86* ]]; then
+			# if the Geekbench test failed for any reason, exit cleanly and print error message
+			echo -e "\r\033[0KGeekbench $VERSION test failed. Run manually to determine cause."
+		fi
+	else
+		# if the Geekbench test succeeded, parse the test results URL
+		GEEKBENCH_URL=$(echo -e $GEEKBENCH_TEST | head -1)
+		GEEKBENCH_URL_CLAIM=$(echo $GEEKBENCH_URL | awk '{ print $2 }')
+		GEEKBENCH_URL=$(echo $GEEKBENCH_URL | awk '{ print $1 }')
+		# sleep a bit to wait for results to be made available on the geekbench website
+		sleep 20
+		# parse the public results page for the single and multi core geekbench scores
+		[[ $VERSION == *5* ]] && GEEKBENCH_SCORES=$($DL_CMD $GEEKBENCH_URL | grep "div class='score'") ||
+			GEEKBENCH_SCORES=$($DL_CMD $GEEKBENCH_URL | grep "span class='score'")
+		GEEKBENCH_SCORES_SINGLE=$(echo $GEEKBENCH_SCORES | awk -v FS="(>|<)" '{ print $3 }')
+		GEEKBENCH_SCORES_MULTI=$(echo $GEEKBENCH_SCORES | awk -v FS="(>|<)" '{ print $7 }')
+	
+		# print the Geekbench results
+		echo -en "\r\033[0K"
+		printf "%-15s ${RED}%-30s${PLAIN}\n" "CPU Test Name" "Score"
+		printf "%-15s ${RED}%-30s${PLAIN}\n" "Single Core" "$GEEKBENCH_SCORES_SINGLE"
+		printf "%-15s ${RED}%-30s${PLAIN}\n" "Multi Core" "$GEEKBENCH_SCORES_MULTI"
+		printf "%-15s ${GREEN}%-30s${PLAIN}\n" "Full Test" "$GEEKBENCH_URL"
+
+		# write the geekbench claim URL to a file so the user can add the results to their profile (if desired)
+		[ ! -z "$GEEKBENCH_URL_CLAIM" ] && echo -e "$GEEKBENCH_URL_CLAIM" >> geekbench_claim.url 2> /dev/null
+	fi
+}
+
 
 (
     next
@@ -371,7 +469,7 @@ calc_disk() {
     sleep 1
 
     printf '%s\n'
-    printf 'VNbenchmark.com v2021.06.24\n'
+    printf 'VNbenchmark.com v2022.06.17\n'
     date -u '+Benchmark time:    %F %T UTC/GMT+7'
     printf '%s\n'
 
@@ -407,15 +505,7 @@ calc_disk() {
 
     echo ""
     echo "CPU Test"
-    export TIMEFORMAT='%3R seconds'
-    cpu1=$( cpu_test_old -q sha256sum || cpu_test_old -q sha256 || printf '[no SHA256 command found]\n' )
-    echo -e "CPU: SHA256-hashing 10GB      : ${YELLOW}$cpu1${PLAIN}"
-    cpu2=$( cpu_test_old bzip2 )
-    echo -e "CPU: bzip2-compressing 10GB   : ${YELLOW}$cpu2${PLAIN}"
-    cpu3=$( cpu_test_old openssl enc -e -aes-256-cbc -pass pass:12345678 | sed '/^\*\*\* WARNING : deprecated key derivation used\.$/d;/^Using -iter or -pbkdf2 would be better\.$/d' )
-    echo -e "CPU: AES-encrypting 10GB      : ${YELLOW}$cpu3${PLAIN}"
-    echo ""
-    cpu_test
+    launch_geekbench 5
     echo ""
     next
 
@@ -452,7 +542,7 @@ calc_disk() {
 
     echo ""
     echo "Speedtest"
-    printf "%-26s%-18s%-20s%-12s\n" "Node Name" "IP Address" "Download" "Latency"
+    printf "%-30s%-36s%-20s%-12s\n" "Node Name" "IP Address" "Download" "Latency"
     speed
     next
 
